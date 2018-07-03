@@ -35,7 +35,21 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'PLUGIN_NAME_VERSION', '1.0.0' );
+define( 'BPGRPTG_PLUGIN_VERSION', '1.0.0' );
+
+/**
+ * Constant defined for plugin path
+ */
+if( ! defined( 'BPGRPTG_PLUGIN_PATH' ) ) {
+	define( 'BPGRPTG_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
+}
+
+/**
+ * Constant defined for plugin path
+ */
+if( ! defined( 'BPGRPTG_PLUGIN_URL' ) ) {
+	define( 'BPGRPTG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+}
 
 /**
  * The code that runs during plugin activation.

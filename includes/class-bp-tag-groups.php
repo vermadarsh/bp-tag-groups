@@ -1,5 +1,4 @@
 <?php
-
 /**
  * The file that defines the core plugin class
  *
@@ -67,8 +66,8 @@ class Bp_Tag_Groups {
 	 * @since    1.0.0
 	 */
 	public function __construct() {
-		if ( defined( 'PLUGIN_NAME_VERSION' ) ) {
-			$this->version = PLUGIN_NAME_VERSION;
+		if ( defined( 'BPGRPTG_PLUGIN_VERSION' ) ) {
+			$this->version = BPGRPTG_PLUGIN_VERSION;
 		} else {
 			$this->version = '1.0.0';
 		}
@@ -77,6 +76,7 @@ class Bp_Tag_Groups {
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->define_admin_hooks();
+		$this->define_globals();
 		$this->define_public_hooks();
 
 	}
@@ -103,24 +103,29 @@ class Bp_Tag_Groups {
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-bp-tag-groups-loader.php';
+		require_once BPGRPTG_PLUGIN_PATH . 'includes/class-bp-tag-groups-loader.php';
 
 		/**
 		 * The class responsible for defining internationalization functionality
 		 * of the plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-bp-tag-groups-i18n.php';
+		require_once BPGRPTG_PLUGIN_PATH . 'includes/class-bp-tag-groups-i18n.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-bp-tag-groups-admin.php';
+		require_once BPGRPTG_PLUGIN_PATH . 'admin/class-bp-tag-groups-admin.php';
+
+		/**
+		 * The class responsible for defining the global variable of the plugin.
+		 */
+		require_once BPGRPTG_PLUGIN_PATH . 'admin/class-bp-tag-groups-global.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-bp-tag-groups-public.php';
+		require_once BPGRPTG_PLUGIN_PATH . 'public/class-bp-tag-groups-public.php';
 
 		$this->loader = new Bp_Tag_Groups_Loader();
 
@@ -172,6 +177,19 @@ class Bp_Tag_Groups {
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
+
+	}
+
+	/**
+	 * The global variable of the plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private function define_globals() {
+
+		global $bp_tag_groups;
+		$bp_tag_groups = new Bp_Tag_Groups_Global( $this->get_plugin_name(), $this->get_version() );
 
 	}
 
