@@ -1,5 +1,4 @@
 <?php
-
 /**
  * The plugin bootstrap file
  *
@@ -13,11 +12,11 @@
  * @package           Bp_Tag_Groups
  *
  * @wordpress-plugin
- * Plugin Name:       BuddyPress Tag groups
+ * Plugin Name:       BuddyPress Tag Groups
  * Plugin URI:        https://github.com/vermadarsh/bp-tag-groups
  * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
  * Version:           1.0.0
- * Author:            Adarsh verma
+ * Author:            Adarsh Verma
  * Author URI:        https://github.com/vermadarsh
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
@@ -93,4 +92,84 @@ function run_bp_tag_groups() {
 	$plugin->run();
 
 }
-run_bp_tag_groups();
+
+/**
+ * Check plugin requirement on plugins loaded, this plugin requires BuddyPress to be installed and active.
+ *
+ * @since    1.0.0
+ */
+add_action( 'plugins_loaded', 'bpgrptg_initialize_plugin' );
+function bpgrptg_initialize_plugin() {
+
+	$bp_active = in_array( 'buddypress/bp-loader.php', get_option( 'active_plugins' ) );
+	$bp_active_components = get_option( 'bp-active-components' );
+	if ( current_user_can('activate_plugins') && $bp_active !== true ) {
+		add_action('admin_notices', 'bpgrptg_plugin_admin_notice');
+	} elseif( ! array_key_exists( 'groups', $bp_active_components ) ) {
+		add_action('admin_notices', 'bpgrptg_plugin_component_admin_notice');
+	} else {
+		run_bp_tag_groups();
+		add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'bpgrptg_plugin_links' );
+	}
+
+}
+
+/**
+ * Show admin notice in case of BuddyPress plugin is missing.
+ *
+ * @since    1.0.0
+ */
+function bpgrptg_plugin_admin_notice() {
+
+	$bpgrptg_plugin = 'BuddyPress Tag Groups';
+	$bp_plugin = 'BuddyPress';
+	?>
+	<div class="error">
+		<p>
+			<?php echo sprintf( __( '%1$s is ineffective as it requires %2$s to be installed and active.', 'bp-tag-groups' ), '<strong>' . esc_html( $bpgrptg_plugin ) . '</strong>', '<strong>' . esc_html( $bp_plugin ) . '</strong>' );?>
+		</p>
+	</div>
+	<?php
+
+}
+
+/**
+ * Show admin notice in case of BuddyPress plugin component - groups is inactive.
+ *
+ * @since    1.0.0
+ */
+function bpgrptg_plugin_component_admin_notice() {
+
+	$bpgrptg_plugin = 'BuddyPress Tag Groups';
+	$bpgrp_component = 'Groups Component';
+	?>
+	<div class="error">
+		<p>
+			<?php echo sprintf( __( '%1$s is ineffective as it requires %2$s to be active.', 'bp-tag-groups' ), '<strong>' . esc_html( $bpgrptg_plugin ) . '</strong>', '<strong>' . esc_html( $bpgrp_component ) . '</strong>' );?>
+		</p>
+	</div>
+	<?php
+
+}
+
+/**
+ * Settings link on plugin listing page
+ *
+ * @since    1.0.0
+ */
+function bpgrptg_plugin_links( $links ) {
+
+	$bpgrptg_links = array(
+		'<a href="'.admin_url('options-general.php?page=bp-tag-groups').'">'.__( 'Settings', 'bp-tag-groups' ).'</a>'
+	);
+	return array_merge( $links, $bpgrptg_links );
+
+}
+
+if( !  function_exists( 'debug' ) ) {
+	function debug( $params ) {
+		echo '<pre>';
+		print_r( $params );
+		echo '</pre>';
+	}
+}

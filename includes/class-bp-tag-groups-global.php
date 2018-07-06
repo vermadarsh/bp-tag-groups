@@ -38,7 +38,7 @@ class Bp_Tag_Groups_Global {
 	 * @access   public
 	 * @var      array    $plugin_admin_settings    The  vriable to hold the complete admin settings.
 	 */
-	protected $plugin_admin_settings;
+	public $bp_group_default_tags;
 
 	/**
 	 * Define the core functionality of the plugin.
@@ -66,11 +66,11 @@ class Bp_Tag_Groups_Global {
 	private function setup_plugin_global() {
 
 		global $bp_tag_groups;
-		$plugin_admin_settings = get_option( 'bp_tag_groups_settings' );
+		$bp_group_default_tags = get_option( 'bp_group_default_tags' );
 
-		$this->plugin_admin_settings = array();
-		if( is_array( $plugin_admin_settings ) && ! empty( $plugin_admin_settings ) ) {
-			$this->plugin_admin_settings = $plugin_admin_settings;
+		$this->bp_group_default_tags = array();
+		if( is_array( $bp_group_default_tags ) && ! empty( $bp_group_default_tags ) ) {
+			$this->bp_group_default_tags = $bp_group_default_tags;
 		}
 
 	}

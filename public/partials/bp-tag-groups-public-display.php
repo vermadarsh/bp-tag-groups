@@ -9,7 +9,7 @@
  * @since      1.0.0
  *
  * @package    Bp_Tag_Groups
- * @subpackage Bp_Tag_Groups/public/partials
+ * @subpackage Bp_Tag_Groups/public/includes
  */
 ?>
 

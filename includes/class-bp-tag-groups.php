@@ -119,7 +119,7 @@ class Bp_Tag_Groups {
 		/**
 		 * The class responsible for defining the global variable of the plugin.
 		 */
-		require_once BPGRPTG_PLUGIN_PATH . 'admin/class-bp-tag-groups-global.php';
+		require_once BPGRPTG_PLUGIN_PATH . 'includes/class-bp-tag-groups-global.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
@@ -159,8 +159,12 @@ class Bp_Tag_Groups {
 
 		$plugin_admin = new Bp_Tag_Groups_Admin( $this->get_plugin_name(), $this->get_version() );
 
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'bpgrptg_enqueue_styles' );
+		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'bpgrptg_enqueue_scripts' );
+		$this->loader->add_action( 'admin_menu', $plugin_admin, 'bpgrptg_plugin_settings_page' );
+		$this->loader->add_action( 'bp_groups_admin_meta_boxes', $plugin_admin, 'bpgrptg_edit_grp_metabox' );
+		$this->loader->add_action( 'groups_settings_updated', $plugin_admin, 'bpgrptg_update_grp_metabox' );
+		$this->loader->add_filter( 'bp_groups_list_table_get_columns', $plugin_admin, 'bpgrptg_groups_list_tbl_column', 10, 1 );
 
 	}
 
@@ -175,8 +179,8 @@ class Bp_Tag_Groups {
 
 		$plugin_public = new Bp_Tag_Groups_Public( $this->get_plugin_name(), $this->get_version() );
 
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
+		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'bpgrptg_enqueue_styles' );
+		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'bpgrptg_enqueue_scripts' );
 
 	}
 
