@@ -1,13 +1,12 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-} // Exit if accessed directly.
 /**
  * Created by PhpStorm.
  * User: Adarsh Verma
  * Date: 06-07-2018
  * Time: 10:49
  */
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit, if accessed directly.
+
 $gid  = filter_input( INPUT_GET, 'gid', FILTER_SANITIZE_NUMBER_INT );
 $group_meta = groups_get_groupmeta( $gid );
 $tags = ! empty( $group_meta['_bpgrptg_group_tag'] ) ? $group_meta['_bpgrptg_group_tag'] : array();

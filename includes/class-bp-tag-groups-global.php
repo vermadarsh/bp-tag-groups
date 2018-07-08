@@ -67,7 +67,6 @@ class Bp_Tag_Groups_Global {
 
 		global $bp_tag_groups;
 		$bp_group_default_tags = get_option( 'bp_group_default_tags' );
-
 		$this->bp_group_default_tags = array();
 		if( is_array( $bp_group_default_tags ) && ! empty( $bp_group_default_tags ) ) {
 			$this->bp_group_default_tags = $bp_group_default_tags;

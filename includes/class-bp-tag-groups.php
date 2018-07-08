@@ -165,6 +165,9 @@ class Bp_Tag_Groups {
 		$this->loader->add_action( 'bp_groups_admin_meta_boxes', $plugin_admin, 'bpgrptg_edit_grp_metabox' );
 		$this->loader->add_action( 'groups_settings_updated', $plugin_admin, 'bpgrptg_update_grp_metabox' );
 		$this->loader->add_filter( 'bp_groups_list_table_get_columns', $plugin_admin, 'bpgrptg_groups_list_tbl_column', 10, 1 );
+		$this->loader->add_filter( 'bp_groups_admin_get_group_custom_column', $plugin_admin, 'bpgrptg_groups_list_tbl_column_content', 10, 3 );
+		$this->loader->add_action( 'wp_ajax_bpgrptg_delete_tag', $plugin_admin, 'bpgrptg_delete_tag' );
+		$this->loader->add_action( 'wp_ajax_bpgrptg_search_tag', $plugin_admin, 'bpgrptg_search_tag' );
 
 	}
 
@@ -181,6 +184,7 @@ class Bp_Tag_Groups {
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'bpgrptg_enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'bpgrptg_enqueue_scripts' );
+		$this->loader->add_action( 'bp_after_group_details_creation_step', $plugin_public, 'bpgrptg_add_tag_create_group' );
 
 	}
 

@@ -16,6 +16,7 @@ global $bp_tag_groups, $wpdb;
 $group_meta_tbl = $wpdb->prefix . 'bp_groups_groupmeta';
 $group_tags = $bp_tag_groups->bp_group_default_tags;
 $group_tags_count = count( $group_tags );
+$disabled_class = ( 0 === $group_tags_count ) ? 'is_disabled' : '';
 ?>
 
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->
@@ -23,7 +24,8 @@ $group_tags_count = count( $group_tags );
     <h1 class="wp-heading-inline"><?php esc_html_e( 'BuddyPress Groups Tags', 'bp-tag-groups' );?></h1>
     <hr class="wp-header-end">
 
-    <p class="search-box">
+    <p class="search-box <?php echo $disabled_class;?>">
+        <span class="bpgrptg-search-tag-empty-keyword"><?php esc_html_e( 'Provide some keyword to search.', 'bp-tag-groups' );?></span>
         <label class="screen-reader-text" for="tag-search-input"><?php esc_html_e( 'Search Tags:', 'bp-tag-groups' );?></label>
         <input type="search" id="bpgrptg-search-tags-input" placeholder="<?php esc_html_e( 'Enter keyword...', 'bp-tag-groups' )?>">
         <input type="button" id="bpgrptg-search-tags-submit" class="button" value="<?php esc_html_e( 'Search Tags', 'bp-tag-groups' )?>">
@@ -60,7 +62,7 @@ $group_tags_count = count( $group_tags );
             <div class="col-wrap">
                 <div class="tablenav top">
                     <div class="tablenav-pages one-page">
-                        <span class="displaying-num"><?php echo sprintf( _n( '%1$s item', '%1$s items', $group_tags_count ), $group_tags_count );?></span>
+                        <span class="bpgrptg-displaying-num"><?php echo sprintf( _n( '%1$s item', '%1$s items', $group_tags_count ), $group_tags_count );?></span>
                         <!--<span class="pagination-links">
                             <span class="tablenav-pages-navspan" aria-hidden="true">‹</span>
                             <span class="tablenav-pages-navspan" aria-hidden="true">›</span>
@@ -84,18 +86,18 @@ $group_tags_count = count( $group_tags );
                         </tr>
                     </thead>
 
-                    <tbody id="the-list" data-wp-lists="list:tag">
+                    <tbody id="the-list" class="bpgrptg-tags-list-tbl" data-wp-lists="list:tag">
                         <?php if( 0 === $group_tags_count ) :?>
                             <tr id="tag-not-found">
                                 <td><?php esc_html_e( 'No tags found.', 'bp-tag-groups' );?></td>
                             </tr>
                         <?php else :?>
-                            <?php foreach( $group_tags as $index => $tag ) :?>
+                            <?php foreach( $group_tags as $tag ) :?>
                                 <?php
 		                        $groups = $wpdb->get_results( "SELECT `group_id` FROM {$group_meta_tbl} WHERE `meta_key` = '_bpgrptg_group_tag' AND `meta_value` = '{$tag['tag_name']}'" );
                                 $tag_groups_count = count( $groups );
                                 ?>
-                                <tr id="tag-<?php echo $index;?>">
+                                <tr id="tag-<?php echo $tag['tag_name'];?>">
                                     <td class="name column-name has-row-actions column-primary" data-colname="Name">
                                         <strong><a class="row-title" href="javascript:void(0);"><?php echo $tag['tag_name'];?></a></strong><br>
                                         <div class="row-actions">
@@ -106,7 +108,7 @@ $group_tags_count = count( $group_tags );
                                     <td class="description column-description" data-colname="Description">
                                         <span aria-hidden="true"><?php echo ! empty( $tag['tag_desc'] ) ? $tag['tag_desc'] : '—';?></span>
                                     </td>
-                                    <td class="posts column-posts" data-colname="Count"><a href="javascript:void(0);"><?php echo $tag_groups_count;?></a></td>
+                                    <td class="posts column-posts" data-colname="Count"><?php echo $tag_groups_count;?></td>
                                 </tr>
                             <?php endforeach;?>
                         <?php endif;?>

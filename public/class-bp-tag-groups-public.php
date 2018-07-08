@@ -61,7 +61,7 @@ class Bp_Tag_Groups_Public {
 	 */
 	public function bpgrptg_enqueue_styles() {
 
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/bp-tag-groups-public.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name, BPGRPTG_PLUGIN_URL . 'public/css/bp-tag-groups-public.css' );
 
 	}
 
@@ -72,8 +72,33 @@ class Bp_Tag_Groups_Public {
 	 */
 	public function bpgrptg_enqueue_scripts() {
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/bp-tag-groups-public.js', array( 'jquery' ), $this->version, false );
+	    global $bp_tag_groups;
+        wp_enqueue_script( 'jquery' );
+        wp_enqueue_script( 'jquery-ui-autocomplete' );
+		wp_enqueue_script( $this->plugin_name, BPGRPTG_PLUGIN_URL . 'public/js/bp-tag-groups-public.js' );
+        wp_localize_script(
+            $this->plugin_name,
+            'BPGRPTG_Public_JS_Obj',
+            array(
+                'ajaxurl'						=>	admin_url( 'admin-ajax.php' ),
+                'loader_url'					=>	includes_url( 'images/spinner-2x.gif' ),
+                'default_group_tags'            =>  $bp_tag_groups->bp_group_default_tags,
+                'add_tag_error_already_added'   =>  esc_html__( 'This tag has been added already.', 'bp-tag-groups' ),
+            )
+        );
 
 	}
+
+    /**
+     * Function called to create section to allow selecting group tags
+     */
+	public function bpgrptg_add_tag_create_group() {
+
+        $file = BPGRPTG_PLUGIN_PATH . 'public/includes/bp-tag-groups-add-tag.php';
+        if( file_exists( $file ) ) {
+            require_once ( $file );
+        }
+
+    }
 
 }

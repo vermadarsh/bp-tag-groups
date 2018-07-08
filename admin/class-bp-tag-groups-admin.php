@@ -91,8 +91,9 @@ class Bp_Tag_Groups_Admin {
 				'loader_url'					=>	includes_url( 'images/spinner-2x.gif' ),
                 'default_group_tags'            =>  $bp_tag_groups->bp_group_default_tags,
                 'add_tag_error_empty'           =>  esc_html__( 'Please enter tag name.', 'bp-tag-groups' ),
-                'add_tag_error_already_added'   =>  esc_html__( 'This tag hal been added already.', 'bp-tag-groups' ),
-			)
+                'add_tag_error_already_added'   =>  esc_html__( 'This tag has been added already.', 'bp-tag-groups' ),
+                'delete_tag_cnf_msg'            =>  esc_html__( 'Deleting this tag will remove itself from the groups it is tagged with. Do you really want to delete this tag?', 'bp-tag-groups' ),
+            )
 		);
 
 	}
@@ -129,28 +130,45 @@ class Bp_Tag_Groups_Admin {
 	 */
 	public function bpgrptg_add_tag() {
 
-		$tag_name = sanitize_text_field( $_POST['bpgrptg-tag-name'] );
+	    $tag_name = sanitize_text_field( $_POST['bpgrptg-tag-name'] );
 		$tag_desc = sanitize_text_field( $_POST['bpgrptg-tag-description'] );
-
+        $add_this_tag = true;
 		$bp_group_default_tags = get_option( 'bp_group_default_tags' );
+        if( ! is_array( $bp_group_default_tags ) ) {
+            $bp_group_default_tags = array();
+        }
 
-		if( ! is_array( $bp_group_default_tags ) ) {
-			$bp_group_default_tags = array();
-		}
+        if( ! empty( $bp_group_default_tags ) ) {
+            foreach( $bp_group_default_tags as $tag ) {
+                if( $tag['tag_name'] === $tag_name ) {
+                    $add_this_tag = false;
+                    break;
+                }
+            }
+        }
 
-		$bp_group_default_tags[] = array(
-			'tag_name'  =>  $tag_name,
-			'tag_desc'  =>  $tag_desc
-		);
-		//debug( $bp_group_default_tags ); die;
-		update_option( 'bp_group_default_tags', $bp_group_default_tags );
-		?>
-		<div class="notice updated" id="message">
-			<p>
-				<?php echo sprintf( __( 'Tag added: %1$s', 'bp-tag-groups' ), '<strong>' . $tag_name . '</strong>' );?>
-			</p>
-		</div>
-		<?php
+        if( true === $add_this_tag ) {
+            $bp_group_default_tags[] = array(
+                'tag_name'  =>  $tag_name,
+                'tag_desc'  =>  $tag_desc
+            );
+            update_option( 'bp_group_default_tags', $bp_group_default_tags );
+            ?>
+            <div class="notice updated" id="message">
+                <p>
+                    <?php echo sprintf( __( 'Tag added: %1$s', 'bp-tag-groups' ), '<strong>' . $tag_name . '</strong>' );?>
+                </p>
+            </div>
+            <?php
+        } else {
+            ?>
+            <div class="notice error" id="message">
+                <p>
+                    <?php echo sprintf( __( '%1$s tag already exists.', 'bp-tag-groups' ), '<strong>' . $tag_name . '</strong>' );?>
+                </p>
+            </div>
+            <?php
+        }
 
 	}
 
@@ -210,8 +228,113 @@ class Bp_Tag_Groups_Admin {
 	 */
     public function bpgrptg_groups_list_tbl_column( $columns ) {
 
-        $columns[] = esc_html__( 'Tags', 'bp-tag-groups' );
+        $columns['bpgrptg_tags'] = esc_html__( 'Tags', 'bp-tag-groups' );
         return $columns;
+
+    }
+
+    /**
+     * Function called to show the custom column data
+     *
+     * @param string $retval
+     * @param $column_name
+     * @param $item
+     */
+    public function bpgrptg_groups_list_tbl_column_content( $retval = '', $column_name, $item ){
+
+        if( 'bpgrptg_tags' === $column_name ) {
+            $group_id = $item['id'];
+            $group_meta = groups_get_groupmeta( $group_id );
+            $tags = ! empty( $group_meta['_bpgrptg_group_tag'] ) ? $group_meta['_bpgrptg_group_tag'] : array();
+            echo ! empty( $tags ) ? implode( ',', $tags ) : '';
+        }
+
+    }
+
+    /**
+     * AJAX called to delete tags.
+     */
+    public function bpgrptg_delete_tag() {
+
+        $action = filter_input( INPUT_POST, 'action', FILTER_SANITIZE_STRING );
+        if( ! empty( $action ) && 'bpgrptg_delete_tag' === $action ) {
+            $tag_name = filter_input( INPUT_POST, 'tag_name', FILTER_SANITIZE_STRING );
+            $is_tagged = filter_input( INPUT_POST, 'is_tagged', FILTER_SANITIZE_STRING );
+
+            global $bp_tag_groups, $wpdb;
+            $groupmeta_tbl = $wpdb->prefix . 'bp_groups_groupmeta';
+            $default_tags = $bp_tag_groups->bp_group_default_tags;
+            $key = array_search( $tag_name, array_column( $default_tags, 'tag_name' ) );
+            unset( $default_tags[ $key ] );
+            update_option( 'bp_group_default_tags', $default_tags );
+
+            /**
+             * Check for remaining tags
+             */
+            $remaining_tags = count( $default_tags );
+            $html = '';
+            if( 0 === $remaining_tags ) {
+                $html = '<tr id="tag-not-found"><td>' . esc_html__( 'No tags found.', 'bp-tag-groups' ) . '</td></tr>';
+            }
+            $remaining_tags_message = sprintf( _n( '%1$s item', '%1$s items', $remaining_tags ), $remaining_tags );
+
+            // Delete this tag from the groups it is tagged to
+            if( 'yes' === $is_tagged ) {
+                $meta_ids = $wpdb->get_results( "SELECT `id` FROM {$groupmeta_tbl} WHERE `meta_key` = '_bpgrptg_group_tag' AND `meta_value` = '{$tag_name}'" );
+                if( ! empty( $meta_ids ) ) {
+                    foreach( $meta_ids as $m_id ) {
+                        $wpdb->delete( $groupmeta_tbl, array( 'id' => $m_id->id ) );
+                    }
+                }
+            }
+
+            $result = array(
+                'message'                   =>  'bpgrptg-tag-deleted',
+                'html'                      =>  $html,
+                'remaining_tags_message'    =>  $remaining_tags_message
+            );
+            wp_send_json_success( $result );
+        }
+
+    }
+
+    /**
+     * AJAX called to search tags.
+     */
+    public function bpgrptg_search_tag() {
+
+        $action = filter_input( INPUT_POST, 'action', FILTER_SANITIZE_STRING );
+        if( ! empty( $action ) && 'bpgrptg_search_tag' === $action ) {
+            $keyword = filter_input( INPUT_POST, 'keyword', FILTER_SANITIZE_STRING );
+
+            global $bp_tag_groups;
+            $default_tags = $bp_tag_groups->bp_group_default_tags;
+
+            $search_result_by_tag_name = array_filter( $default_tags, function ( $item ) use ( $keyword ) {
+                if ( stripos( $item['tag_name'], $keyword ) !== false ) {
+                    return true;
+                }
+                return false;
+            });
+
+            $search_result_by_tag_desc = array_filter( $default_tags, function ( $item ) use ( $keyword ) {
+                if ( stripos( $item['tag_desc'], $keyword ) !== false ) {
+                    return true;
+                }
+                return false;
+            });
+
+            debug( $search_result_by_tag_name );
+            debug( $search_result_by_tag_desc );
+            die;
+
+            $result = array(
+                'message'                   =>  'bpgrptg-tag-deleted',
+                'html'                      =>  $html,
+                'remaining_tags_message'    =>  $remaining_tags_message
+            );
+            wp_send_json_success( $result );
+        }
 
     }
 

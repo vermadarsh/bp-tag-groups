@@ -77,4 +77,72 @@ jQuery(document).ready(function ( $ ) {
             $('#bpgrptg-this-group-tags').val( JSON.stringify( this_group_tags ) );
         }
     });
+
+    $(document).on('click', '.bpgrptg-delete-tag', function () {
+        var cnf = confirm( BPGRPTG_Admin_JS_Obj.delete_tag_cnf_msg );
+        if( true === cnf ) {
+            var row_id = $(this).closest('tr').attr('id');
+            var tag_name = row_id.replace( 'tag-', '' );
+            var tagged_val = parseInt( $(this).closest('td').next().next().text() );
+            var is_tagged = ( tagged_val > 0 ) ? 'yes' : 'no';
+
+            var data = {
+                'action'    :   'bpgrptg_delete_tag',
+                'tag_name'  :   tag_name,
+                'is_tagged' :   is_tagged
+            };
+            $.ajax({
+                dataType    :   'JSON',
+                url         :   BPGRPTG_Admin_JS_Obj.ajaxurl,
+                type        :   'POST',
+                data        :   data,
+                success     :   function ( response ) {
+                    if( response['data']['message'] == 'bpgrptg-tag-deleted' ) {
+                        if( '' === response['data']['html'] ) {
+                            // Means there are some tags still remaining
+                            $('#' + row_id).remove();
+                        } else {
+                            // Means all the tags have been deleted, display the empty message
+                            $('.bpgrptg-tags-list-tbl').html( response['data']['html'] );
+                        }
+                        $('.bpgrptg-displaying-num').html( response['data']['remaining_tags_message'] );
+                    }
+                },
+            });
+        }
+    });
+
+    /**
+     * Search tags
+     */
+    $(document).on('click', '#bpgrptg-search-tags-submit', function () {
+        var keyword = $('#bpgrptg-search-tags-input').val();
+        if( '' !== keyword ) {
+            var data = {
+                'action'    :   'bpgrptg_search_tag',
+                'keyword'   :   keyword
+            };
+            $.ajax({
+                dataType    :   'JSON',
+                url         :   BPGRPTG_Admin_JS_Obj.ajaxurl,
+                type        :   'POST',
+                data        :   data,
+                success     :   function ( response ) {
+                    if( response['data']['message'] == 'bpgrptg-tag-deleted' ) {
+                        if( '' === response['data']['html'] ) {
+                            // Means there are some tags still remaining
+                            $('#' + row_id).remove();
+                        } else {
+                            // Means all the tags have been deleted, display the empty message
+                            $('.bpgrptg-tags-list-tbl').html( response['data']['html'] );
+                        }
+                        $('.bpgrptg-displaying-num').html( response['data']['remaining_tags_message'] );
+                    }
+                },
+            });
+        } else {
+            $('.bpgrptg-search-tag-empty-keyword').fadeIn();
+            $('.bpgrptg-search-tag-empty-keyword').fadeOut(2000);
+        }
+    });
 });

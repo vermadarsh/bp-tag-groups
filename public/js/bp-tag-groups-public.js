@@ -1,32 +1,103 @@
-(function( $ ) {
-	'use strict';
+jQuery(document).ready(function ( $ ) {
+    'use strict';
 
-	/**
-	 * All of the code for your public-facing JavaScript source
-	 * should reside in this file.
-	 *
-	 * Note: It has been assumed you will write jQuery code here, so the
-	 * $ function reference has been prepared for usage within the scope
-	 * of this function.
-	 *
-	 * This enables you to define handlers, for when the DOM is ready:
-	 *
-	 * $(function() {
-	 *
-	 * });
-	 *
-	 * When the window is loaded:
-	 *
-	 * $( window ).load(function() {
-	 *
-	 * });
-	 *
-	 * ...and/or other possibilities.
-	 *
-	 * Ideally, it is not considered best practise to attach more than a
-	 * single DOM-ready or window-load handler for a particular page.
-	 * Although scripts in the WordPress core, Plugins and Themes may be
-	 * practising this, we should strive to set a better example in our own work.
-	 */
+    /**
+     * Create array of default group tags
+     */
+    var default_tags = BPGRPTG_Admin_JS_Obj.default_group_tags;
+    var default_tags_arr = [];
+    if( default_tags.length > 0 ) {
+        for ( var i in default_tags ) {
+            default_tags_arr.push( default_tags[i]['tag_name'] );
+        }
+    }
 
-})( jQuery );
+    $('#bpgrptg-new-tag-input').autocomplete({
+        minChars: 2,
+        delay: 100,
+        source: default_tags_arr,
+        select: function ( event, ui ) {
+            var tag_name = ui.item.value;
+            bpgrptg_add_tag( tag_name );
+            $('#bpgrptg-new-tag-input').val( '' );
+        }
+    });
+
+    $(document).on('click', '.bpgrptg-tagadd', function () {
+        var tag_name = $('#bpgrptg-new-tag-input').val();
+        if( tag_name !== '' ) {
+            bpgrptg_add_tag( tag_name );
+        } else {
+            $('.bpgrptg-add-tag-error').html( BPGRPTG_Admin_JS_Obj.add_tag_error_empty ).fadeIn();
+            $('.bpgrptg-add-tag-error').fadeOut(2000);
+        }
+    });
+
+    /**
+     * Function defined to create the HTML for adding the tag.
+     * @param tag
+     */
+    function bpgrptg_add_tag( tag ) {
+        var add_tag = true;
+        var this_group_tags = $('#bpgrptg-this-group-tags').val();
+        if( '' !== this_group_tags ) {
+            this_group_tags = JSON.parse( this_group_tags );
+            if( -1 !== $.inArray( tag, this_group_tags ) ) {
+                var add_tag = false;
+                $('.bpgrptg-add-tag-error').html( BPGRPTG_Admin_JS_Obj.add_tag_error_already_added ).fadeIn();
+                $('.bpgrptg-add-tag-error').fadeOut(2000);
+                return false;
+            }
+        } else {
+            this_group_tags = [];
+        }
+
+
+        if( true === add_tag ) {
+            var html = '';
+            html += '<li>';
+            html += '<button type="button" id="bpgrptg-remove-tag-' + tag + '" class="bpgrptg-remove-tag ntdelbutton" data-tag="' + tag + '">';
+            html += '<span class="remove-tag-icon" aria-hidden="true"></span>';
+            html += '</button>&nbsp;' + tag;
+            html += '</li>';
+            $('.bpgrptg-tags-list').append( html );
+            this_group_tags.push( tag );
+            $('#bpgrptg-this-group-tags').val( JSON.stringify( this_group_tags ) );
+        }
+    }
+
+    $(document).on('click', '.bpgrptg-remove-tag', function () {
+        var tag = $(this).data('tag');
+        $(this).parent('li').remove();
+        var this_group_tags = JSON.parse( $('#bpgrptg-this-group-tags').val() );
+        this_group_tags.splice( $.inArray( tag, this_group_tags ), 1 );
+        if( 0 === this_group_tags.length ) {
+            $('#bpgrptg-this-group-tags').val( '' );
+        } else {
+            $('#bpgrptg-this-group-tags').val( JSON.stringify( this_group_tags ) );
+        }
+    });
+
+    $(document).on('click', '.bpgrptg-delete-tag', function () {
+        var cnf = confirm( BPGRPTG_Admin_JS_Obj.delete_tag_cnf_msg );
+        if( true === cnf ) {
+            var row_id = $(this).closest('tr').attr('id');
+            var tag_name = row_id.replace( 'tag-', '' );
+            var data = {
+                'action'    :   'bpgrptg_delete_tag',
+                'tag_name'  :   tag_name
+            };
+            $.ajax({
+                dataType    :   'JSON',
+                url         :   BPGRPTG_Admin_JS_Obj.ajaxurl,
+                type        :   'POST',
+                data        :   data,
+                success     :   function ( response ) {
+                    if( response['data']['message'] == 'bpgrptg-tag-deleted' ) {
+
+                    }
+                },
+            });
+        }
+    });
+});

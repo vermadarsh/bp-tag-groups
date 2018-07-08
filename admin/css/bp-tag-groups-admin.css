@@ -2,4 +2,5 @@
  * All of the CSS for your admin-specific functionality should be
  * included in this file.
  */
-.bpgrptg-add-tag-error{border: 1px solid #FF000C;border-radius: 5px;color: #FF000C;padding: 5px;display: none;}
+.bpgrptg-add-tag-error, .bpgrptg-search-tag-empty-keyword{border: 1px solid #FF000C;border-radius: 5px;color: #FF000C;padding: 5px;display: none;}
+.is_disabled{pointer-events: none;opacity: 0.5;background: #CCC;}
