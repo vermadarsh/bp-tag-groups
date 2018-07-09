@@ -185,6 +185,7 @@ class Bp_Tag_Groups {
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'bpgrptg_enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'bpgrptg_enqueue_scripts' );
 		$this->loader->add_action( 'bp_after_group_details_creation_step', $plugin_public, 'bpgrptg_add_tag_create_group' );
+        $this->loader->add_action( 'groups_custom_group_fields_editable', $plugin_public, 'bpgrptg_add_tag_group_edit_details' );
 
 	}
 

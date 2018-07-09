@@ -338,8 +338,17 @@ class Bp_Tag_Groups_Admin {
             global $bp_tag_groups, $wpdb;
             $groupmeta_tbl = $wpdb->prefix . 'bp_groups_groupmeta';
             $default_tags = $bp_tag_groups->bp_group_default_tags;
-            $key = array_search( $tag_name, array_column( $default_tags, 'tag_name' ) );
-            unset( $default_tags[ $key ] );
+            $key_to_unset = '';
+            foreach( $default_tags as $key => $default_tag ) {
+                if( $tag_name === $default_tag['tag_name'] ) {
+                    $key_to_unset = (int)$key;
+                    break;
+                }
+            }
+
+            if( '' !== $key_to_unset ) {
+                unset( $default_tags[ $key ] );
+            }
             update_option( 'bp_group_default_tags', $default_tags );
 
             /**
@@ -381,31 +390,45 @@ class Bp_Tag_Groups_Admin {
         if( ! empty( $action ) && 'bpgrptg_search_tag' === $action ) {
             $keyword = filter_input( INPUT_POST, 'keyword', FILTER_SANITIZE_STRING );
 
-            global $bp_tag_groups;
+            global $bp_tag_groups, $wpdb;
+            $group_meta_tbl = $wpdb->prefix . 'bp_groups_groupmeta';
             $default_tags = $bp_tag_groups->bp_group_default_tags;
-
-            $search_result_by_tag_name = array_filter( $default_tags, function ( $item ) use ( $keyword ) {
-                if ( stripos( $item['tag_name'], $keyword ) !== false ) {
-                    return true;
+            $search_html = '';
+            $found_tags = 0;
+            foreach( $default_tags as $key => $default_tag ) {
+                $tag_name_pos = stripos( $default_tag['tag_name'], $keyword );
+                $tag_desc_pos = stripos( $default_tag['tag_desc'], $keyword );
+                if( false !== $tag_name_pos || false !== $tag_desc_pos ) {
+                    $found_tags++;
+                    $groups = $wpdb->get_results( "SELECT `group_id` FROM {$group_meta_tbl} WHERE `meta_key` = '_bpgrptg_group_tag' AND `meta_value` = '{$default_tag['tag_name']}'" );
+                    $tag_groups_count = count( $groups );
+                    $search_html .= '<tr id="tag-' . $default_tag['tag_name'] . '">';
+                    $search_html .= '<td class="name column-name has-row-actions column-primary" data-colname="Name">';
+                    $search_html .= '<strong><a class="row-title" href="javascript:void(0);">' . $default_tag['tag_name'] . '</a></strong><br>';
+                    $search_html .= '<div class="row-actions">';
+                    $search_html .= '<span class="edit"><a href="' . admin_url( 'options-general.php?page=bp-tag-groups&action=edit&tag=' . $default_tag['tag_name'] ) . '">' . esc_html__( 'Edit', 'bp-tag-groups' ) . '</a> | </span>';
+                    $search_html .= '<span class="delete"><a href="javascript:void(0);" class="delete-tag bpgrptg-delete-tag aria-button-if-js" role="button">' . esc_html__( 'Delete', 'bp-tag-groups' ) . '</a></span>';
+                    $search_html .= '</div>';
+                    $search_html .= '</td>';
+                    $search_html .= '<td class="description column-description" data-colname="Description">';
+                    $search_html .= '<span aria-hidden="true">' . ( ! empty( $default_tag['tag_desc'] ) ) ? $default_tag['tag_desc'] : '—' . '</span>';
+                    $search_html .= '</td>';
+                    $search_html .= '<td class="posts column-posts" data-colname="Count">' . $tag_groups_count . '</td>';
+                    $search_html .= '</tr>';
                 }
-                return false;
-            });
+            }
 
-            $search_result_by_tag_desc = array_filter( $default_tags, function ( $item ) use ( $keyword ) {
-                if ( stripos( $item['tag_desc'], $keyword ) !== false ) {
-                    return true;
-                }
-                return false;
-            });
+            if( '' === $search_html ) {
+                $search_html = '<tr id="tag-not-found" class="bpgrptg-no-tag-matched"><td colspan="3">' . esc_html__( 'No tags matched your search results.', 'bp-tag-groups' ) . '</td></tr>';
+            }
 
-            $search_results = array_merge( $search_result_by_tag_name, $search_result_by_tag_desc );
-            debug( $search_results );
-            die;
+            $found_tags_text = sprintf( _n( '%1$s tag found', '%1$s tags found', $found_tags ), $found_tags );
 
             $result = array(
-                'message'                   =>  'bpgrptg-tag-deleted',
-                'html'                      =>  $html,
-                'remaining_tags_message'    =>  $remaining_tags_message
+                'message'                   =>  'bpgrptg-tag-searched',
+                'found_tags'                =>  $found_tags,
+                'found_tags_text'           =>  $found_tags_text,
+                'html'                      =>  $search_html
             );
             wp_send_json_success( $result );
         }

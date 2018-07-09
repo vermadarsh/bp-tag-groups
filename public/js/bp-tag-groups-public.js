@@ -4,7 +4,7 @@ jQuery(document).ready(function ( $ ) {
     /**
      * Create array of default group tags
      */
-    var default_tags = BPGRPTG_Admin_JS_Obj.default_group_tags;
+    var default_tags = BPGRPTG_Public_JS_Obj.default_group_tags;
     var default_tags_arr = [];
     if( default_tags.length > 0 ) {
         for ( var i in default_tags ) {
@@ -28,7 +28,7 @@ jQuery(document).ready(function ( $ ) {
         if( tag_name !== '' ) {
             bpgrptg_add_tag( tag_name );
         } else {
-            $('.bpgrptg-add-tag-error').html( BPGRPTG_Admin_JS_Obj.add_tag_error_empty ).fadeIn();
+            $('.bpgrptg-add-tag-error').html( BPGRPTG_Public_JS_Obj.add_tag_error_empty ).fadeIn();
             $('.bpgrptg-add-tag-error').fadeOut(2000);
         }
     });
@@ -44,7 +44,7 @@ jQuery(document).ready(function ( $ ) {
             this_group_tags = JSON.parse( this_group_tags );
             if( -1 !== $.inArray( tag, this_group_tags ) ) {
                 var add_tag = false;
-                $('.bpgrptg-add-tag-error').html( BPGRPTG_Admin_JS_Obj.add_tag_error_already_added ).fadeIn();
+                $('.bpgrptg-add-tag-error').html( BPGRPTG_Public_JS_Obj.add_tag_error_already_added ).fadeIn();
                 $('.bpgrptg-add-tag-error').fadeOut(2000);
                 return false;
             }
@@ -75,29 +75,6 @@ jQuery(document).ready(function ( $ ) {
             $('#bpgrptg-this-group-tags').val( '' );
         } else {
             $('#bpgrptg-this-group-tags').val( JSON.stringify( this_group_tags ) );
-        }
-    });
-
-    $(document).on('click', '.bpgrptg-delete-tag', function () {
-        var cnf = confirm( BPGRPTG_Admin_JS_Obj.delete_tag_cnf_msg );
-        if( true === cnf ) {
-            var row_id = $(this).closest('tr').attr('id');
-            var tag_name = row_id.replace( 'tag-', '' );
-            var data = {
-                'action'    :   'bpgrptg_delete_tag',
-                'tag_name'  :   tag_name
-            };
-            $.ajax({
-                dataType    :   'JSON',
-                url         :   BPGRPTG_Admin_JS_Obj.ajaxurl,
-                type        :   'POST',
-                data        :   data,
-                success     :   function ( response ) {
-                    if( response['data']['message'] == 'bpgrptg-tag-deleted' ) {
-
-                    }
-                },
-            });
         }
     });
 });

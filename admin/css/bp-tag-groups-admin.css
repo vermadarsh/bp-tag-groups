@@ -6,3 +6,4 @@
 .is_disabled{pointer-events: none;opacity: 0.5;background: #CCC;}
 .bpgrptg-no-tag-exists{color: #FF000C !important;}
 .bpgrptg-edit-tag-warning{color: #FF000C !important;}
+.bpgrptg-no-tag-matched td{color: #FF000C;}

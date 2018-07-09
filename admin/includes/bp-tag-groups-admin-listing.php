@@ -83,7 +83,7 @@ $disabled_class = ( 0 === $group_tags_count ) ? 'is_disabled' : '';
                     <tbody id="the-list" class="bpgrptg-tags-list-tbl" data-wp-lists="list:tag">
                         <?php if( 0 === $group_tags_count ) :?>
                             <tr id="tag-not-found">
-                                <td><?php esc_html_e( 'No tags found.', 'bp-tag-groups' );?></td>
+                                <td colspan="3"><?php esc_html_e( 'No tags found.', 'bp-tag-groups' );?></td>
                             </tr>
                         <?php else :?>
                             <?php foreach( $group_tags as $tag ) :?>

@@ -2,3 +2,49 @@
  * All of the CSS for your public-facing functionality should be
  * included in this file.
  */
+.tagchecklist {
+    margin-left: 14px;
+    font-size: 12px;
+    overflow: auto;
+    list-style: none;
+}
+.tagchecklist>li {
+    float: left;
+    margin-right: 25px;
+    font-size: 13px;
+    line-height: 1.8em;
+    cursor: default;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.tagchecklist .ntdelbutton {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border: none;
+    margin: 0 0 0 -19px;
+    padding: 0;
+    background: 0 0;
+    cursor: pointer;
+    text-indent: 0;
+}
+.tagchecklist .ntdelbutton .remove-tag-icon:before {
+    margin-left: 2px;
+    border-radius: 50%;
+    color: #0073aa;
+    line-height: 1.28;
+}
+.remove-tag-icon:before {
+    background: 0 0;
+    color: #72777c;
+    content: "\f153";
+    display: block;
+    font: 400 16px/20px dashicons;
+    speak: none;
+    height: 20px;
+    text-align: center;
+    width: 20px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}

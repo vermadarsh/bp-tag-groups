@@ -104,6 +104,7 @@ jQuery(document).ready(function ( $ ) {
                         } else {
                             // Means all the tags have been deleted, display the empty message
                             $('.bpgrptg-tags-list-tbl').html( response['data']['html'] );
+                            $('.search-box').addClass( 'is_disabled' );
                         }
                         $('.bpgrptg-displaying-num').html( response['data']['remaining_tags_message'] );
                     }
@@ -128,8 +129,9 @@ jQuery(document).ready(function ( $ ) {
                 type        :   'POST',
                 data        :   data,
                 success     :   function ( response ) {
-                    if( 'bpgrptg-tag-deleted' === response['data']['message'] ) {
-
+                    if( 'bpgrptg-tag-searched' === response['data']['message'] ) {
+                        $('.bpgrptg-tags-list-tbl').html( response['data']['html'] );
+                        $('.bpgrptg-displaying-num').html( response['data']['found_tags_text'] );
                     }
                 },
             });

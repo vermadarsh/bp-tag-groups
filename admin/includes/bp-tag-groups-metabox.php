@@ -22,7 +22,8 @@ $tags = ! empty( $group_meta['_bpgrptg_group_tag'] ) ? $group_meta['_bpgrptg_gro
                 <label class="screen-reader-text" for="new-tag-post_tag"><?php esc_html_e( 'Add New Tag', 'bp-tag-groups' );?></label>
                 <p>
                     <input type="text" id="bpgrptg-new-tag-input" name="bpgrptg-new-tag-input" class="newtag form-input-tip ui-autocomplete-input" size="16" autocomplete="off" aria-describedby="new-tag-post_tag-desc" value="" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-owns="ui-id-1">
-                    <input type="button" class="button bpgrptg-tagadd" value="<?php esc_html_e( 'Add', 'bp-tag-groups' );?>"></p>
+                    <input type="button" class="button bpgrptg-tagadd" value="<?php esc_html_e( 'Add', 'bp-tag-groups' );?>">
+                </p>
             </div>
         </div>
         <ul class="tagchecklist bpgrptg-tags-list" role="list">

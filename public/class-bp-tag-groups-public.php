@@ -90,11 +90,23 @@ class Bp_Tag_Groups_Public {
 	}
 
     /**
-     * Function called to create section to allow selecting group tags
+     * Function called to create section to allow selecting group tags while creating groups.
      */
 	public function bpgrptg_add_tag_create_group() {
 
         $file = BPGRPTG_PLUGIN_PATH . 'public/includes/bp-tag-groups-add-tag.php';
+        if( file_exists( $file ) ) {
+            require_once ( $file );
+        }
+
+    }
+
+    /**
+     * Function called to create section to allow selecting group tags
+     */
+    public function bpgrptg_add_tag_group_edit_details() {
+
+        $file = BPGRPTG_PLUGIN_PATH . 'public/includes/bp-tag-groups-add-tag-edit-details.php';
         if( file_exists( $file ) ) {
             require_once ( $file );
         }
