@@ -160,7 +160,7 @@ function bpgrptg_plugin_component_admin_notice() {
 function bpgrptg_plugin_links( $links ) {
 
 	$bpgrptg_links = array(
-		'<a href="'.admin_url('options-general.php?page=bp-tag-groups').'">'.__( 'Settings', 'bp-tag-groups' ).'</a>'
+		'<a href="' . admin_url( 'options-general.php?page=bp-tag-groups' ) . '">'.__( 'Settings', 'bp-tag-groups' ).'</a>'
 	);
 	return array_merge( $links, $bpgrptg_links );
 

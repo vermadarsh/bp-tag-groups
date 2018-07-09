@@ -4,3 +4,5 @@
  */
 .bpgrptg-add-tag-error, .bpgrptg-search-tag-empty-keyword{border: 1px solid #FF000C;border-radius: 5px;color: #FF000C;padding: 5px;display: none;}
 .is_disabled{pointer-events: none;opacity: 0.5;background: #CCC;}
+.bpgrptg-no-tag-exists{color: #FF000C !important;}
+.bpgrptg-edit-tag-warning{color: #FF000C !important;}

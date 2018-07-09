@@ -35,24 +35,18 @@ $disabled_class = ( 0 === $group_tags_count ) ? 'is_disabled' : '';
         <div id="col-left">
             <div class="col-wrap">
                 <div class="form-wrap">
-                    <h2><?php esc_html_e( 'Add New Tag', 'bp-tag-groups' );?></h2>
-                    <form id="bpgrptg-add-tag" method="POST" action="" class="validate">
-                        <div class="form-field form-required term-name-wrap">
-                            <label for="bpgrptg-tag-name"><?php esc_html_e( 'Name', 'bp-tag-groups' );?></label>
-                            <input name="bpgrptg-tag-name" id="bpgrptg-tag-name" type="text" value="" size="40" aria-required="true" required>
-                            <p><?php esc_html_e( 'The name is how it appears on your site.', 'bp-tag-groups' );?></p>
-                        </div>
-                        <div class="form-field term-description-wrap">
-                            <label for="bpgrptg-tag-description"><?php esc_html_e( 'Description', 'bp-tag-groups' );?></label>
-                            <textarea name="bpgrptg-tag-description" id="bpgrptg-tag-description" rows="5" cols="40"></textarea>
-                            <p><?php esc_html_e( 'The description is not prominent by default; however, some themes may show it.', 'bp-tag-groups' );?></p>
-                        </div>
-
-                        <p class="submit">
-	                        <?php wp_nonce_field( 'bpgrptg-add-tag', 'bpgrptg-add-tag-nonce' ); ?>
-                            <input type="submit" name="bpgrptg-add-tag-submit" id="submit" class="button button-primary" value="<?php esc_html_e( 'Add New Tag', 'bp-tag-groups' );?>">
-                        </p>
-                    </form>
+                    <?php
+                    $action = filter_input( INPUT_GET, 'action', FILTER_SANITIZE_STRING );
+                    $tag = filter_input( INPUT_GET, 'tag', FILTER_SANITIZE_STRING );
+                    if( ! empty( $action ) && 'edit' === $action ) {
+                        $file = BPGRPTG_PLUGIN_PATH . 'admin/includes/bp-tag-groups-edit-tag.php';
+                    } else {
+	                    $file = BPGRPTG_PLUGIN_PATH . 'admin/includes/bp-tag-groups-add-tag.php';
+                    }
+                    if( file_exists( $file ) ) {
+	                    require_once ( $file );
+                    }
+                    ?>
                 </div>
 
             </div>
@@ -101,7 +95,7 @@ $disabled_class = ( 0 === $group_tags_count ) ? 'is_disabled' : '';
                                     <td class="name column-name has-row-actions column-primary" data-colname="Name">
                                         <strong><a class="row-title" href="javascript:void(0);"><?php echo $tag['tag_name'];?></a></strong><br>
                                         <div class="row-actions">
-                                            <span class="edit"><a href="javascript:void(0);"><?php esc_html_e( 'Edit', 'bp-tag-groups' );?></a> | </span>
+                                            <span class="edit"><a href="<?php echo admin_url( 'options-general.php?page=bp-tag-groups&action=edit&tag=' . $tag['tag_name'] );?>"><?php esc_html_e( 'Edit', 'bp-tag-groups' );?></a> | </span>
                                             <span class="delete"><a href="javascript:void(0);" class="delete-tag bpgrptg-delete-tag aria-button-if-js" role="button"><?php esc_html_e( 'Delete', 'bp-tag-groups' );?></a></span>
                                         </div>
                                     </td>

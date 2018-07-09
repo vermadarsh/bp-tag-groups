@@ -59,6 +59,13 @@ class Bp_Tag_Groups_Admin {
 			$this->bpgrptg_add_tag();
 		}
 
+		/**
+		 * Save the updated tag by the administrator.
+		 */
+		if ( isset( $_POST[ 'bpgrptg-update-tag-submit' ] ) && wp_verify_nonce( $_POST[ 'bpgrptg-update-tag-nonce' ], 'bpgrptg-update-tag' ) ) {
+			$this->bpgrptg_update_tag();
+		}
+
 	}
 
 	/**
@@ -90,6 +97,7 @@ class Bp_Tag_Groups_Admin {
 				'ajaxurl'						=>	admin_url( 'admin-ajax.php' ),
 				'loader_url'					=>	includes_url( 'images/spinner-2x.gif' ),
                 'default_group_tags'            =>  $bp_tag_groups->bp_group_default_tags,
+                'admin_settings_url'            =>  admin_url( 'options-general.php?page=bp-tag-groups' ),
                 'add_tag_error_empty'           =>  esc_html__( 'Please enter tag name.', 'bp-tag-groups' ),
                 'add_tag_error_already_added'   =>  esc_html__( 'This tag has been added already.', 'bp-tag-groups' ),
                 'delete_tag_cnf_msg'            =>  esc_html__( 'Deleting this tag will remove itself from the groups it is tagged with. Do you really want to delete this tag?', 'bp-tag-groups' ),
@@ -162,13 +170,79 @@ class Bp_Tag_Groups_Admin {
             <?php
         } else {
             ?>
-            <div class="notice error" id="message">
+            <div class="notice error notice-error notice-alt" id="message">
                 <p>
                     <?php echo sprintf( __( '%1$s tag already exists.', 'bp-tag-groups' ), '<strong>' . $tag_name . '</strong>' );?>
                 </p>
             </div>
             <?php
         }
+
+	}
+
+	/**
+	 * Function called to update tags and save them in database.
+	 *
+	 * @since    1.0.0
+	 */
+	public function bpgrptg_update_tag() {
+
+	    $old_tag_name = sanitize_text_field( $_POST['bpgrptg-tag-old-name'] );
+		$tag_name = sanitize_text_field( $_POST['bpgrptg-tag-name'] );
+		$tag_desc = sanitize_text_field( $_POST['bpgrptg-tag-description'] );
+		$update_this_tag = true;
+
+		$bp_group_default_tags = get_option( 'bp_group_default_tags' );
+		if( ! is_array( $bp_group_default_tags ) ) {
+			$bp_group_default_tags = array();
+		}
+
+		if( ! empty( $bp_group_default_tags ) ) {
+			foreach( $bp_group_default_tags as $tag ) {
+				if( $tag['tag_name'] === $tag_name ) {
+					$update_this_tag = false;
+					break;
+				}
+			}
+		}
+
+		if( true === $update_this_tag ) {
+			global $wpdb;
+			$groupmeta_tbl = $wpdb->prefix . 'bp_groups_groupmeta';
+			$meta_ids = $wpdb->get_results( "SELECT `id` FROM {$groupmeta_tbl} WHERE `meta_key` = '_bpgrptg_group_tag' AND `meta_value` = '{$old_tag_name}'" );
+			if( ! empty( $meta_ids ) ) {
+				foreach( $meta_ids as $m_id ) {
+					$wpdb->update( $groupmeta_tbl, array( 'meta_value' => $tag_name ), array( 'id' => $m_id->id ) );
+				}
+			}
+
+			// Update the default tags
+			$key = array_search( $old_tag_name, array_column( $bp_group_default_tags, 'tag_name' ) );
+
+			$bp_group_default_tags[ $key ] = array(
+                'tag_name'  =>  $tag_name,
+                'tag_desc'  =>  $tag_desc
+            );
+
+			update_option( 'bp_group_default_tags', $bp_group_default_tags );
+			?>
+            <div class="notice updated" id="message">
+                <p>
+					<?php echo sprintf( __( 'Tag updated: %1$s', 'bp-tag-groups' ), '<strong>' . $tag_name . '</strong>' );?>
+                </p>
+            </div>
+			<?php
+			wp_safe_redirect( admin_url( 'options-general.php?page=bp-tag-groups' ) );
+			exit;
+		} else {
+			?>
+            <div class="notice error notice-error notice-alt" id="message">
+                <p>
+					<?php echo sprintf( __( 'The %1$s tag is already in use.', 'bp-tag-groups' ), '<strong>' . $tag_name . '</strong>' );?>
+                </p>
+            </div>
+			<?php
+		}
 
 	}
 
@@ -324,8 +398,8 @@ class Bp_Tag_Groups_Admin {
                 return false;
             });
 
-            debug( $search_result_by_tag_name );
-            debug( $search_result_by_tag_desc );
+            $search_results = array_merge( $search_result_by_tag_name, $search_result_by_tag_desc );
+            debug( $search_results );
             die;
 
             $result = array(

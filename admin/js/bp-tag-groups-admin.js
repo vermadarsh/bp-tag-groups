@@ -128,21 +128,40 @@ jQuery(document).ready(function ( $ ) {
                 type        :   'POST',
                 data        :   data,
                 success     :   function ( response ) {
-                    if( response['data']['message'] == 'bpgrptg-tag-deleted' ) {
-                        if( '' === response['data']['html'] ) {
-                            // Means there are some tags still remaining
-                            $('#' + row_id).remove();
-                        } else {
-                            // Means all the tags have been deleted, display the empty message
-                            $('.bpgrptg-tags-list-tbl').html( response['data']['html'] );
-                        }
-                        $('.bpgrptg-displaying-num').html( response['data']['remaining_tags_message'] );
+                    if( 'bpgrptg-tag-deleted' === response['data']['message'] ) {
+
                     }
                 },
             });
         } else {
             $('.bpgrptg-search-tag-empty-keyword').fadeIn();
-            $('.bpgrptg-search-tag-empty-keyword').fadeOut(2000);
+            $('.bpgrptg-search-tag-empty-keyword').fadeOut(4000);
+        }
+    });
+
+    /**
+     * Cancel the update tags
+     */
+    $(document).on('click', '#bpgrptg-update-tag-cancel', function () {
+        window.location.href = BPGRPTG_Admin_JS_Obj.admin_settings_url;
+    });
+
+    /**
+     * Disallow spaces in tag names
+     */
+    $(document).on('keyup', 'input[name="bpgrptg-tag-name"]', function () {
+        var tag_name = $(this).val();
+        tag_name = tag_name.replace( ' ', '' );
+        tag_name = tag_name.replace( /  +/g, '' );
+        $('input[name="bpgrptg-tag-name"]').val(tag_name);
+    });
+
+    /**
+     * Submit the search request once the enter key is pressed.
+     */
+    $(document).on('keyup', '#bpgrptg-search-tags-input', function(e) {
+        if( 13 === e.keyCode ) {
+            $('#bpgrptg-search-tags-submit').click();
         }
     });
 });
