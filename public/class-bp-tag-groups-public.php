@@ -61,6 +61,7 @@ class Bp_Tag_Groups_Public {
 	 */
 	public function bpgrptg_enqueue_styles() {
 
+		wp_enqueue_style( $this->plugin_name . '-ui-css', '//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css' );
 		wp_enqueue_style( $this->plugin_name, BPGRPTG_PLUGIN_URL . 'public/css/bp-tag-groups-public.css' );
 
 	}

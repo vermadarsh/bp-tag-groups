@@ -3,14 +3,14 @@
  * included in this file.
  */
 .tagchecklist {
-    margin-left: 14px;
+    margin: 15px 0px 15px 15px ;
     font-size: 12px;
     overflow: auto;
     list-style: none;
 }
 .tagchecklist>li {
-    float: left;
-    margin-right: 25px;
+    float: left !important;
+    margin-right: 35px;
     font-size: 13px;
     line-height: 1.8em;
     cursor: default;
@@ -23,9 +23,10 @@
     width: 24px;
     height: 24px;
     border: none;
-    margin: 0 0 0 -19px;
-    padding: 0;
-    background: 0 0;
+    margin: -1px 0 0 -19px;
+    padding: 0 !important;
+    border: 0 !important;
+    background:transparent !important;
     cursor: pointer;
     text-indent: 0;
 }
@@ -47,4 +48,16 @@
     width: 20px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+#main #buddypress .standard-form #bpgrptg-new-tag-input{width: 80%; float: left;}
+#buddypress .standard-form .bpgrptg-tagadd{display: inline-block;    width: calc(100% - 84%); margin-left: 24px; height: 38px;}
+#main #buddypress .standard-form#group-settings-form p > label{float: left;width: 100%;display: block;}
+#main #buddypress .standard-form#group-settings-form p{display: inline-block;width: 100%;}
+
+@media (max-width:992px){
+    #buddypress .standard-form .bpgrptg-tagadd{width: calc(100% - 82%);margin-left: 10px;height: 43px;;}
+}
+@media (max-width:600px){
+    #buddypress .standard-form .bpgrptg-tagadd{width: calc(100% - 82%);margin-left: 3px;}
 }
